@@ -7,15 +7,41 @@ using System.Threading.Tasks;
 
 namespace _2048
 {
+    enum MoveDirection
+    {
+        None,
+        Up,
+        Down,
+        Left,
+        Right,
+    }
+
     class Program
     {
-        const int MATRIX_NUM = 4;
-        static Dictionary<Tuple<int, int>, int> _dic = new Dictionary<Tuple<int, int>, int>();
+        private const int MATRIX_NUM = 4;
+        private const int FILL_VALUE = 2;
 
-        static Random _random = new Random();
-        static int _step = 0;
+        private static Dictionary<Tuple<int, int>, int> _dic = new Dictionary<Tuple<int, int>, int>();
+        private static Random _random = new Random();
+        private static bool _isMoved = false;
 
-        static void Main(string[] args)
+        private static int _step = 0;
+
+        private static void Main(string[] args)
+        {
+            Init();
+
+            Console.WriteLine("Use ↑ ↓ ← →");
+            while (Read())
+            {
+            }
+            Console.WriteLine("GameOver");
+
+            while (true)
+                Console.ReadKey();
+        }
+
+        private static void Init()
         {
             _dic.Clear();
             _step = 0;
@@ -28,27 +54,83 @@ namespace _2048
                 }
             }
 
-            Console.WriteLine("Use ↑ ↓ ← →");
-
-            while (Read())
-            {
-            }
-            Console.WriteLine("GameOver");
-
-            while (true)
-                Console.ReadKey();
+            _dic[new Tuple<int, int>(_random.Next(0, MATRIX_NUM), _random.Next(0, MATRIX_NUM))] = FILL_VALUE;
         }
         private static bool Read()
         {
             return Calc(Console.ReadKey(true).Key);
         }
+        private static bool CheckCanContinue()
+        {
+            return CheckHasHole() || CheckHasNearSameValue();
+        }
+        private static bool CheckHasHole()
+        {
+            bool flag = false;
+            foreach (var tuple in _dic)
+            {
+                if (tuple.Value == 0)
+                {
+                    flag = true;
+                    break;
+                }
+            }
+            return flag;
+        }
+        private static bool CheckHasNearSameValue()
+        {
+            bool flag = false;
+            Tuple<int, int> tuple1 = null;
+            Tuple<int, int> tuple2 = null;
+            Tuple<int, int> tuple3 = null;
+
+            for (int row = 0; row < MATRIX_NUM; row++)
+            {
+                for (int col = 0; col < MATRIX_NUM; col++)
+                {
+                    tuple1 = new Tuple<int, int>(row, col);
+                    tuple2 = new Tuple<int, int>(row, col + 1);
+                    tuple3 = new Tuple<int, int>(row + 1, col);
+
+                    if (_dic.ContainsKey(tuple2) && _dic[tuple1] == _dic[tuple2])
+                    {
+                        flag = true;
+                        break;
+                    }
+                    if (_dic.ContainsKey(tuple3) && _dic[tuple1] == _dic[tuple3])
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag)
+                    break;
+            }
+
+            return flag;
+        }
+
         private static bool Calc(ConsoleKey key)
         {
+            if (key == ConsoleKey.UpArrow)
+                return Calc(MoveDirection.Up);
+            else if (key == ConsoleKey.DownArrow)
+                return Calc(MoveDirection.Down);
+            else if (key == ConsoleKey.LeftArrow)
+                return Calc(MoveDirection.Left);
+            else if (key == ConsoleKey.RightArrow)
+                return Calc(MoveDirection.Right);
+            else
+                return Calc(MoveDirection.None);
+        }
+        private static bool Calc(MoveDirection key)
+        {
+            _isMoved = false;
+
             #region Calc
 
             List<int> list = new List<int>();
-
-            if (key == ConsoleKey.UpArrow)
+            if (key == MoveDirection.Up)
             {
                 for (int col = 0; col < MATRIX_NUM; col++)
                 {
@@ -61,7 +143,7 @@ namespace _2048
                     }
                 }
             }
-            else if (key == ConsoleKey.DownArrow)
+            else if (key == MoveDirection.Down)
             {
                 for (int col = 0; col < MATRIX_NUM; col++)
                 {
@@ -74,7 +156,7 @@ namespace _2048
                     }
                 }
             }
-            else if (key == ConsoleKey.LeftArrow)
+            else if (key == MoveDirection.Left)
             {
                 for (int row = 0; row < MATRIX_NUM; row++)
                 {
@@ -87,7 +169,7 @@ namespace _2048
                     }
                 }
             }
-            else if (key == ConsoleKey.RightArrow)
+            else if (key == MoveDirection.Right)
             {
                 for (int row = 0; row < MATRIX_NUM; row++)
                 {
@@ -100,68 +182,32 @@ namespace _2048
                     }
                 }
             }
-            else if (key == ConsoleKey.Backspace)
-            {
-                return false;
-            }
             else
             {
-                return true; //输入非法
+                return true; //输入非法, 不做处理
             }
 
             #endregion
 
-            bool flag = false;
-            foreach (var tuple in _dic)
-            {
-                if (tuple.Value == 0)
-                {
-                    flag = true;
-                    break;
-                }
-            }
+            if (!_isMoved) //没有产生移动
+                return CheckCanContinue();
 
-            if (flag)
+            if (CheckHasHole())
             {
                 var listEmpty = _dic.Where(item => item.Value == 0).Select(item => item.Key).ToList();
                 var tuple = listEmpty[_random.Next(listEmpty.Count)];
-                _dic[tuple] = 2;
+                _dic[tuple] = FILL_VALUE;
 
                 _step++;
                 Console.WriteLine("===============" + key.ToString() + "    Step:" + _step);
                 Print();
-            }
 
-            if (!flag)
+                return CheckCanContinue();
+            }
+            else
             {
-                Tuple<int, int> tuple1 = null;
-                Tuple<int, int> tuple2 = null;
-                Tuple<int, int> tuple3 = null;
-
-                for (int row = 0; row < MATRIX_NUM; row++)
-                {
-                    for (int col = 0; col < MATRIX_NUM; col++)
-                    {
-                        tuple1 = new Tuple<int, int>(row, col);
-                        tuple2 = new Tuple<int, int>(row, col + 1);
-                        tuple3 = new Tuple<int, int>(row + 1, col);
-
-                        if (_dic.ContainsKey(tuple2) && _dic[tuple1] == _dic[tuple2])
-                        {
-                            flag = true;
-                            break;
-                        }
-                        if (_dic.ContainsKey(tuple3) && _dic[tuple1] == _dic[tuple3])
-                        {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (flag)
-                        break;
-                }
+                return CheckHasNearSameValue();
             }
-            return flag;
         }
         private static List<int> CalcSingle(List<int> list)
         {
@@ -174,6 +220,8 @@ namespace _2048
                     list[index] *= 2;
                     list[index + 1] = 0;
                     list = RemoveEmpty(list);
+
+                    _isMoved = true;
                 }
                 index++;
             }
@@ -192,17 +240,22 @@ namespace _2048
             for (int i = listNew.Count; i < list.Count; i++)
             {
                 listNew.Add(0);
+
+                if (list[listNew.Count - 1] != 0)
+                    _isMoved = true;
             }
 
             return listNew;
         }
+
         private static void Print()
         {
             for (int row = 0; row < MATRIX_NUM; row++)
             {
                 for (int col = 0; col < MATRIX_NUM; col++)
                 {
-                    Console.Write(_dic[new Tuple<int, int>(row, col)].ToString());
+
+                    Console.Write(_dic[new Tuple<int, int>(row, col)].ToString().PadLeft(3));
                     Console.Write(" ");
                 }
                 Console.WriteLine();
