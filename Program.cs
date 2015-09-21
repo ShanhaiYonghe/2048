@@ -149,6 +149,7 @@ namespace _2048
                 {
                     list = _dic.Where(item => item.Key.Item2 == col).OrderByDescending(item => item.Key.Item1).Select(item => item.Value).ToList();
                     list = CalcSingle(list);
+                    list.Reverse();
 
                     for (int index = 0; index < MATRIX_NUM; index++)
                     {
@@ -175,6 +176,7 @@ namespace _2048
                 {
                     list = _dic.Where(item => item.Key.Item1 == row).OrderByDescending(item => item.Key.Item2).Select(item => item.Value).ToList();
                     list = CalcSingle(list);
+                    list.Reverse();
 
                     for (int index = 0; index < MATRIX_NUM; index++)
                     {

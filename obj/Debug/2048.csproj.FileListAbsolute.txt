@@ -4,3 +4,6 @@ C:\Users\WangLong\Documents\Visual Studio 2013\Projects\MyTest\2048\bin\Debug\20
 C:\Users\WangLong\Documents\Visual Studio 2013\Projects\MyTest\2048\obj\Debug\2048.exe
 C:\Users\WangLong\Documents\Visual Studio 2013\Projects\MyTest\2048\obj\Debug\2048.pdb
 C:\Users\WangLong\Documents\Visual Studio 2013\Projects\MyTest\2048\obj\Debug\2048.csprojResolveAssemblyReference.cache
+F:\Git\2048\2048\bin\Debug\2048.exe.config
+F:\Git\2048\2048\obj\Debug\2048.exe
+F:\Git\2048\2048\obj\Debug\2048.pdb
